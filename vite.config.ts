@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import {transformSync} from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
@@ -57,7 +58,24 @@ export default defineConfig(() => {
           const distDir = path.resolve(__dirname, 'dist');
           const distIndexHtml = path.resolve(distDir, 'index.html');
           if (fs.existsSync(distIndexHtml)) {
-            fs.copyFileSync(distIndexHtml, path.resolve(__dirname, 'index.html'));
+            let html = fs.readFileSync(distIndexHtml, 'utf-8');
+            html = html.replace(
+              /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi,
+              (_match, openTag: string, code: string, closeTag: string) => {
+                if (!code.trim()) {
+                  return _match;
+                }
+                const result = transformSync(code, {
+                  loader: 'js',
+                  minify: true,
+                  format: 'esm',
+                });
+                const safeCode = result.code.replace(/<\/script/gi, '<\\/script');
+                return `${openTag}${safeCode}${closeTag}`;
+              }
+            );
+            fs.writeFileSync(distIndexHtml, html, 'utf-8');
+            fs.writeFileSync(path.resolve(__dirname, 'index.html'), html, 'utf-8');
           }
 
           const distNoJekyll = path.resolve(distDir, '.nojekyll');
