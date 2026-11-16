@@ -1,0 +1,8 @@
+{
+  "name": "Porsche Sales & Corporate Intelligence",
+  "description": "Dashboard interativa de análise de vendas Porsche (100 registros sanitizados), perguntas de negócio, filtros dinâmicos, exportação HTML único para GitHub Pages e visão corporativa Porsche AG.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
